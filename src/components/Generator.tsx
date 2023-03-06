@@ -54,10 +54,10 @@ export default () => {
         if (char) {
           setCurrentAssistantMessage(currentAssistantMessage() + char);
         }
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: "smooth",
-        });
+        // window.scrollTo({
+        //   top: document.body.scrollHeight,
+        //   behavior: "smooth",
+        // });
       }
       done = readerDone;
     }
