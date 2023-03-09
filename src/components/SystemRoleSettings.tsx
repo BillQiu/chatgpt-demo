@@ -1,5 +1,6 @@
-import { Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import type { Accessor, Setter } from "solid-js";
+import Edit from "./icons/Edit";
 
 interface Props {
   canEdit: Accessor<boolean>;
@@ -11,6 +12,7 @@ interface Props {
 
 export default (props: Props) => {
   let systemInputRef: HTMLTextAreaElement;
+  const [editValue, setEditValue] = createSignal("");
 
   const handleButtonClick = () => {
     props.setCurrentSystemRoleSettings(systemInputRef.value);
@@ -24,6 +26,14 @@ export default (props: Props) => {
     }
   };
 
+  const handleEditButtonClick = () => {
+    props.setSystemRoleEditing(true);
+  };
+
+  const handleChange = (event) => {
+    setEditValue(event.target.value);
+  };
+
   return (
     <div class="my-4">
       <Show when={!props.systemRoleEditing()}>
@@ -32,7 +42,14 @@ export default (props: Props) => {
             <div class="flex items-center gap-1 op-50 dark:op-60">
               <span>System Role:</span>
             </div>
-            <div class="mt-1">{props.currentSystemRoleSettings()}</div>
+            <div class="mt-1 flex items-center ">
+              <span class="mr-1">{props.currentSystemRoleSettings()}</span>
+              <Show when={props.canEdit()}>
+                <span onclick={handleEditButtonClick} class="cursor-pointer">
+                  <Edit />
+                </span>
+              </Show>
+            </div>
           </div>
         </Show>
         <Show when={!props.currentSystemRoleSettings() && props.canEdit()}>
@@ -56,7 +73,9 @@ export default (props: Props) => {
           </p>
           <div>
             <textarea
+              value={editValue()}
               ref={systemInputRef!}
+              onChange={handleChange}
               onkeydown={handleSetKeydown}
               placeholder="You are a helpful assistant, answer as concisely as possible...."
               autocomplete="off"
@@ -75,7 +94,6 @@ export default (props: Props) => {
               focus:ring-0
               focus:outline-none
               placeholder:op-50
-              dark="placeholder:op-30"
               overflow-hidden
               resize-none
               scroll-pa-8px
