@@ -1,5 +1,6 @@
 import { createSignal, Index, Show, onMount } from "solid-js";
 import MessageItem from "./MessageItem";
+import Nav from "./Nav";
 import IconClear from "./icons/Clear";
 import type { ChatMessage } from "@/types";
 import hotkeys from "hotkeys-js";
@@ -11,6 +12,7 @@ export default () => {
   let inputRef: HTMLTextAreaElement;
   const [currentSystemRoleSettings, setCurrentSystemRoleSettings] =
     createSignal("");
+  const [promptList, setPromptList] = createSignal([]);
 
   const [messageList, setMessageList] = createSignal<ChatMessage[]>([]);
   const [systemRoleEditing, setSystemRoleEditing] = createSignal(false);
@@ -18,17 +20,6 @@ export default () => {
     createSignal("");
   const [loading, setLoading] = createSignal(false);
   const [controller, setController] = createSignal<AbortController>(null);
-
-  const throttle = _.throttle(
-    function () {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    },
-    300,
-    {
-      leading: true,
-      trailing: false,
-    }
-  );
 
   const handleButtonClick = async () => {
     const inputValue = inputRef.value;
@@ -161,7 +152,6 @@ export default () => {
           if (char) {
             setCurrentAssistantMessage(currentAssistantMessage() + char);
           }
-          throttle();
         }
         done = readerDone;
       }
@@ -174,8 +164,14 @@ export default () => {
     archiveCurrentMessage();
   };
 
+  const removePrompt = (value) => {
+    const result = promptList().filter((item) => item !== value);
+    setPromptList(result);
+  };
+
   return (
     <div my-6>
+      <Nav list={promptList} remove={removePrompt} />
       <SystemRoleSettings
         canEdit={() => messageList().length === 0}
         systemRoleEditing={systemRoleEditing}
