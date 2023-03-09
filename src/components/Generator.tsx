@@ -55,13 +55,10 @@ export default () => {
   };
 
   onMount(() => {
-    console.log("onMount");
     hotkeys("command+k", (event, handler) => {
-      // 处理键盘事件
       clear();
     });
 
-    // 组件卸载时解除键盘监听
     return () => {
       hotkeys.unbind("command+k");
     };

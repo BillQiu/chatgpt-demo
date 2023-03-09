@@ -17,6 +17,13 @@ export default (props: Props) => {
     props.setSystemRoleEditing(false);
   };
 
+  const handleSetKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleButtonClick();
+    }
+  };
+
   return (
     <div class="my-4">
       <Show when={!props.systemRoleEditing()}>
@@ -50,6 +57,7 @@ export default (props: Props) => {
           <div>
             <textarea
               ref={systemInputRef!}
+              onkeydown={handleSetKeydown}
               placeholder="You are a helpful assistant, answer as concisely as possible...."
               autocomplete="off"
               autofocus
