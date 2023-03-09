@@ -1,7 +1,8 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show, onMount } from "solid-js";
 import MessageItem from "./MessageItem";
 import IconClear from "./icons/Clear";
 import type { ChatMessage } from "@/types";
+import hotkeys from "hotkeys-js";
 
 export default () => {
   let inputRef: HTMLTextAreaElement;
@@ -79,7 +80,23 @@ export default () => {
     setCurrentAssistantMessage("");
   };
 
+  onMount(() => {
+    console.log("onMount");
+    hotkeys("command+k", (event, handler) => {
+      // 处理键盘事件
+      clear();
+    });
+
+    // 组件卸载时解除键盘监听
+    return () => {
+      hotkeys.unbind("command+k");
+    };
+  });
+
   const handleKeydown = (e: KeyboardEvent) => {
+    if (e.metaKey && e.key === "k") {
+      clear();
+    }
     if (e.isComposing || e.shiftKey) {
       return;
     }
