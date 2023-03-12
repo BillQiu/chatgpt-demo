@@ -1,10 +1,22 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, onMount, createEffect } from "solid-js";
 import type { Accessor, Setter } from "solid-js";
+import {
+  addPromptKey,
+  getCurrentLocalId,
+  getPromptInfo,
+  getPromptKeys,
+  setPromptInfo,
+  updatePromptInfo,
+} from "@/utils/localStorage";
+
 import Edit from "./icons/Edit";
 
 interface Props {
   canEdit: Accessor<boolean>;
+  currentId: Accessor<string>;
   systemRoleEditing: Accessor<boolean>;
+  setPromptListKeys: Accessor<string[]>;
+  setPromptInfo: Accessor<any>;
   setSystemRoleEditing: Setter<boolean>;
   currentSystemRoleSettings: Accessor<string>;
   setCurrentSystemRoleSettings: Setter<string>;
@@ -14,24 +26,49 @@ export default (props: Props) => {
   let systemInputRef: HTMLTextAreaElement;
   const [editValue, setEditValue] = createSignal("");
 
-  const handleButtonClick = () => {
+  const handleSetClick = () => {
     props.setCurrentSystemRoleSettings(systemInputRef.value);
+    props.setSystemRoleEditing(false);
+    updatePromptInfo(getCurrentLocalId(), "content", systemInputRef.value);
+  };
+
+  const handleCancelClick = () => {
     props.setSystemRoleEditing(false);
   };
 
   const handleSetKeydown = (event: KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      handleButtonClick();
+      handleSetClick();
     }
   };
 
   const handleEditButtonClick = () => {
     props.setSystemRoleEditing(true);
+    setEditValue(props.currentSystemRoleSettings());
   };
 
   const handleChange = (event) => {
     setEditValue(event.target.value);
+  };
+
+  const handleCreatePrompt = () => {
+    const allPromptKeys = getPromptKeys();
+    const allPromptInfo = getPromptInfo();
+
+    const uuid = new Date().getTime().toString();
+    const info = {
+      name: "New Chat",
+      content: editValue(),
+    };
+
+    addPromptKey(uuid);
+    setPromptInfo(uuid, info);
+
+    // @ts-ignore
+    props.setPromptListKeys([...allPromptKeys, uuid]);
+    // @ts-ignore
+    props.setPromptInfo({ ...allPromptInfo, [uuid]: info });
   };
 
   return (
@@ -100,7 +137,33 @@ export default (props: Props) => {
             />
           </div>
           <button
-            onClick={handleButtonClick}
+            onClick={handleSetClick}
+            h-12
+            px-4
+            py-2
+            mr-2
+            bg-slate
+            bg-op-15
+            hover:bg-op-20
+            rounded-sm
+          >
+            Set
+          </button>
+          <button
+            onClick={handleCancelClick}
+            h-12
+            px-4
+            py-2
+            mr-2
+            bg-slate
+            bg-op-15
+            hover:bg-op-20
+            rounded-sm
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreatePrompt}
             h-12
             px-4
             py-2
@@ -109,7 +172,7 @@ export default (props: Props) => {
             hover:bg-op-20
             rounded-sm
           >
-            Set
+            Create
           </button>
         </div>
       </Show>

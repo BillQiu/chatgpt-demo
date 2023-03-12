@@ -17,7 +17,7 @@ export const generatePayload = (
   body: JSON.stringify({
     model: "gpt-3.5-turbo",
     messages,
-    temperature: 0.6,
+    temperature: 0.3,
     stream: true,
   }),
 });
@@ -36,15 +36,6 @@ export const parseOpenAIStream = (rawResponse: Response) => {
             return;
           }
           try {
-            // response = {
-            //   id: 'chatcmpl-6pULPSegWhFgi0XQ1DtgA3zTa1WR6',
-            //   object: 'chat.completion.chunk',
-            //   created: 1677729391,
-            //   model: 'gpt-3.5-turbo-0301',
-            //   choices: [
-            //     { delta: { content: '你' }, index: 0, finish_reason: null }
-            //   ],
-            // }
             const json = JSON.parse(data);
             const text = json.choices[0].delta?.content || "";
             const queue = encoder.encode(text);

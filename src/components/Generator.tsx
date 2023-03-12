@@ -7,12 +7,21 @@ import hotkeys from "hotkeys-js";
 import SystemRoleSettings from "./SystemRoleSettings";
 import { generateSignature } from "../utils/auth";
 import _ from "lodash";
+import {
+  getPromptInfoByKey,
+  getCurrentLocalId,
+  getPromptInfo,
+  getPromptKeys,
+  removeLocalStoragePrompt,
+} from "@/utils/localStorage";
 
 export default () => {
   let inputRef: HTMLTextAreaElement;
+  const [currentId, setCurrentId] = createSignal(getCurrentLocalId());
   const [currentSystemRoleSettings, setCurrentSystemRoleSettings] =
     createSignal("");
-  const [promptList, setPromptList] = createSignal([]);
+  const [promptListKeys, setPromptListKeys] = createSignal(getPromptKeys());
+  const [promptInfo, setPromptInfo] = createSignal(getPromptInfo());
 
   const [messageList, setMessageList] = createSignal<ChatMessage[]>([]);
   const [systemRoleEditing, setSystemRoleEditing] = createSignal(false);
@@ -50,6 +59,9 @@ export default () => {
       clear();
     });
 
+    setCurrentSystemRoleSettings(
+      getPromptInfoByKey(getCurrentLocalId()).content
+    );
     return () => {
       hotkeys.unbind("command+k");
     };
@@ -165,14 +177,25 @@ export default () => {
   };
 
   const removePrompt = (value) => {
-    const result = promptList().filter((item) => item !== value);
-    setPromptList(result);
+    const [restKeys] = removeLocalStoragePrompt(value);
+    setPromptListKeys(restKeys);
   };
 
   return (
     <div my-6>
-      <Nav list={promptList} remove={removePrompt} />
+      <Nav
+        clear={clear}
+        list={promptListKeys}
+        info={promptInfo}
+        remove={removePrompt}
+        currentId={currentId}
+        setCurrentId={setCurrentId}
+        setCurrentSystemRoleSettings={setCurrentSystemRoleSettings}
+      />
       <SystemRoleSettings
+        currentId={currentId}
+        setPromptInfo={setPromptInfo}
+        setPromptListKeys={setPromptListKeys}
         canEdit={() => messageList().length === 0}
         systemRoleEditing={systemRoleEditing}
         setSystemRoleEditing={setSystemRoleEditing}
