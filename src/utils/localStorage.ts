@@ -4,7 +4,10 @@ import {
   LOCAL_STORAGE_PROMPT_KEY,
 } from "./constant";
 
-const localStorage = globalThis?.localStorage ?? ({} as Storage);
+const localStorage = globalThis?.localStorage ?? {
+  getItem: () => null,
+  setItem: () => null,
+};
 interface PromptInfo {
   name?: string;
   content: string;
