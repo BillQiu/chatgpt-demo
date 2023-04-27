@@ -76,7 +76,9 @@ const initTheme = () => {
     document.documentElement.classList.toggle('dark', darkSchema)
   }
 }
+import { inject } from '@vercel/analytics';
 
+inject();
 initTheme()
 
 </script>
